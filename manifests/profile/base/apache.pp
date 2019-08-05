@@ -46,7 +46,19 @@ class tripleo::profile::base::apache(
     }
   } else {
     class { '::apache':
-      mpm_module => $mpm_module,
+      mpm_module => 'event',
+    } ->
+    # FIXME(bogdando): LP#1838972. Remove this after no more Centos 7/Fedora CI jobs
+    # left for Train
+    exec {'Hack /etc/httpd/conf.modules.d for Centos 7 #1':
+      path        => '/usr/bin',
+      refreshonly => true,
+      command     =>  'rm -f /etc/httpd/conf.modules.d/00-mpm.*'
+    } ->
+    exec {'Hack /etc/httpd/conf.modules.d for Centos 7 #2':
+      path        => '/usr/bin',
+      refreshonly => true,
+      command     =>  'rm -f /etc/httpd/conf.modules.d/prefork.*'
     }
   }
 
